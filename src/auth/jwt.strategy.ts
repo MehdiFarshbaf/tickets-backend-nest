@@ -3,7 +3,7 @@ import {PassportStrategy} from '@nestjs/passport';
 import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 import {PrismaService} from '../prisma/prisma.service';
-import {User} from "../../generated/prisma/client";
+import {CurrentUser} from "../common/types/current-user.type";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -14,11 +14,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: configService.getOrThrow<string>('JWT_SECRET'), // اگر نبود، اپ crash می‌کنه (بهتره!)
+            secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
         });
     }
 
-    async validate(payload: { sub: number }) {
+    async validate(payload: { sub: number }): Promise<CurrentUser> {
         const user = await this.prisma.user.findUnique({
             where: {id: payload.sub, is_deleted: false, is_active: true},
         });
