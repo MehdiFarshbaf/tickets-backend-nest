@@ -15,26 +15,46 @@ datasource db {
 model User {
   id          Int      @id @default(autoincrement())
   email       String   @unique
+  password    String
   name        String?
-  role        Role     @default(USER) // USER یا ADMIN
-  tickets     Ticket[] @relation("TicketOwner")     // تیکت‌هایی که این کاربر ساخته
-  messages    Message[]                              // پیام‌هایی که این کاربر نوشته
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  role        Role     @default(USER)
+
+  // Audit fields
+  is_active   Boolean  @default(true)
+  is_deleted  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  createdTickets  Ticket[]   @relation("TicketCreatedBy")
+  createdMessages Message[]  @relation("MessageCreatedBy")
+
+  ownedTickets    Ticket[]   @relation("TicketOwner")
+  sentMessages    Message[]  @relation("MessageAuthor")
 
   @@map("users")
 }
 
 model Ticket {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String
   status      TicketStatus @default(OPEN)
-  priority    Priority  @default(MEDIUM)
-  owner       User      @relation("TicketOwner", fields: [ownerId], references: [id])
+  priority    Priority     @default(MEDIUM)
+
+  // Relations
+  owner       User     @relation("TicketOwner", fields: [ownerId], references: [id])
   ownerId     Int
+
+  creator     User?    @relation("TicketCreatedBy", fields: [created_by], references: [id])
+  created_by  Int?
+
+  // Audit fields
+  is_active   Boolean  @default(true)
+  is_deleted  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
   messages    Message[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
 
   @@map("tickets")
 }
@@ -42,12 +62,24 @@ model Ticket {
 model Message {
   id          Int      @id @default(autoincrement())
   content     String
+
   ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   ticketId    Int
-  author      User     @relation(fields: [authorId], references: [id])
+  // Relations
+
+  author      User     @relation("MessageAuthor", fields: [authorId], references: [id])
   authorId    Int
-  isAdmin     Boolean  @default(false) // برای اینکه بفهمیم ادمین نوشته یا کاربر
-  createdAt   DateTime @default(now())
+
+  creator     User?    @relation("MessageCreatedBy", fields: [created_by], references: [id])
+  created_by  Int?
+
+  is_admin    Boolean  @default(false)
+
+  // Audit fields
+  is_active   Boolean  @default(true)
+  is_deleted  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
   @@map("messages")
 }
