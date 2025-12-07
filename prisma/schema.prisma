@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String?
+  role        Role     @default(USER) // USER یا ADMIN
+  tickets     Ticket[] @relation("TicketOwner")     // تیکت‌هایی که این کاربر ساخته
+  messages    Message[]                              // پیام‌هایی که این کاربر نوشته
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Ticket {
+  id          Int       @id @default(autoincrement())
+  title       String
+  status      TicketStatus @default(OPEN)
+  priority    Priority  @default(MEDIUM)
+  owner       User      @relation("TicketOwner", fields: [ownerId], references: [id])
+  ownerId     Int
+  messages    Message[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("tickets")
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  content     String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId    Int
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    Int
+  isAdmin     Boolean  @default(false) // برای اینکه بفهمیم ادمین نوشته یا کاربر
+  createdAt   DateTime @default(now())
+
+  @@map("messages")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
