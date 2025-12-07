@@ -23,7 +23,7 @@ export class TicketsService {
                     create: {
                         content: createTicketDto.firstMessage,
                         authorId: userId,
-                        isAdmin: false,
+                        is_admin: false,
                     },
                 },
             },
@@ -31,7 +31,7 @@ export class TicketsService {
                 owner: {select: {id: true, name: true, email: true}},
                 messages: {
                     include: {author: {select: {id: true, name: true, role: true}}},
-                    orderBy: {createdAt: 'asc'},
+                    orderBy: {created_at: 'asc'},
                 },
             },
         });
@@ -44,10 +44,10 @@ export class TicketsService {
             include: {
                 messages: {
                     include: {author: {select: {id: true, name: true, role: true}}},
-                    orderBy: {createdAt: 'asc'},
+                    orderBy: {created_at: 'asc'},
                 }
             },
-            orderBy: {createdAt: 'desc'},
+            orderBy: {created_at: 'desc'},
         })
     }
 
@@ -58,10 +58,10 @@ export class TicketsService {
                 owner: {select: {name: true, email: true}},
                 messages: {
                     include: {author: {select: {name: true, role: true}}},
-                    orderBy: {createdAt: 'asc'},
+                    orderBy: {created_at: 'asc'},
                 },
             },
-            orderBy: {createdAt: 'desc'},
+            orderBy: {created_at: 'desc'},
         });
     }
 
@@ -73,7 +73,7 @@ export class TicketsService {
                 owner: {select: {name: true, email: true}},
                 messages: {
                     include: {author: {select: {name: true, role: true}}},
-                    orderBy: {createdAt: 'asc'},
+                    orderBy: {created_at: 'asc'},
                 },
             },
         });
@@ -96,7 +96,7 @@ export class TicketsService {
                 content: dto.content,
                 ticketId,
                 authorId: userId,
-                isAdmin: userRole === Role.ADMIN,
+                is_admin: userRole === Role.ADMIN,
             },
             include: { author: { select: { name: true, role: true } } },
         });

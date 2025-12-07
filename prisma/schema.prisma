@@ -13,73 +13,72 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  password    String
-  name        String?
-  role        Role     @default(USER)
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  name     String?
+  role     Role    @default(USER)
 
-  // Audit fields
-  is_active   Boolean  @default(true)
-  is_deleted  Boolean  @default(false)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  // Audit & Soft Delete
+  is_active  Boolean  @default(true)
+  is_deleted Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   // Relations
-  createdTickets  Ticket[]   @relation("TicketCreatedBy")
-  createdMessages Message[]  @relation("MessageCreatedBy")
-
-  ownedTickets    Ticket[]   @relation("TicketOwner")
-  sentMessages    Message[]  @relation("MessageAuthor")
+  ownedTickets    Ticket[]  @relation("TicketOwner")
+  createdTickets  Ticket[]  @relation("TicketCreatedBy")
+  sentMessages    Message[] @relation("MessageAuthor")
+  createdMessages Message[] @relation("MessageCreatedBy")
 
   @@map("users")
 }
 
 model Ticket {
-  id          Int      @id @default(autoincrement())
-  title       String
-  status      TicketStatus @default(OPEN)
-  priority    Priority     @default(MEDIUM)
+  id       Int          @id @default(autoincrement())
+  title    String
+  status   TicketStatus @default(OPEN)
+  priority Priority     @default(MEDIUM)
 
   // Relations
-  owner       User     @relation("TicketOwner", fields: [ownerId], references: [id])
-  ownerId     Int
+  owner   User @relation("TicketOwner", fields: [ownerId], references: [id])
+  ownerId Int
 
-  creator     User?    @relation("TicketCreatedBy", fields: [created_by], references: [id])
-  created_by  Int?
+  creator    User? @relation("TicketCreatedBy", fields: [created_by], references: [id])
+  created_by Int?
 
-  // Audit fields
-  is_active   Boolean  @default(true)
-  is_deleted  Boolean  @default(false)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  // Audit & Soft Delete
+  is_active  Boolean  @default(true)
+  is_deleted Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  messages    Message[]
+  messages Message[]
 
   @@map("tickets")
 }
 
 model Message {
-  id          Int      @id @default(autoincrement())
-  content     String
-
-  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  ticketId    Int
+  id      Int    @id @default(autoincrement())
+  content String
   // Relations
 
-  author      User     @relation("MessageAuthor", fields: [authorId], references: [id])
-  authorId    Int
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  ticketId Int
 
-  creator     User?    @relation("MessageCreatedBy", fields: [created_by], references: [id])
-  created_by  Int?
+  author   User @relation("MessageAuthor", fields: [authorId], references: [id])
+  authorId Int
 
-  is_admin    Boolean  @default(false)
+  creator    User? @relation("MessageCreatedBy", fields: [created_by], references: [id])
+  created_by Int?
 
-  // Audit fields
-  is_active   Boolean  @default(true)
-  is_deleted  Boolean  @default(false)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  is_admin Boolean @default(false)
+
+  // Audit & Soft Delete
+  is_active  Boolean  @default(true)
+  is_deleted Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("messages")
 }

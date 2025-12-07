@@ -2,6 +2,7 @@ import {Module} from '@nestjs/common';
 import {PrismaService} from './prisma/prisma.service';
 import {TicketsModule} from './tickets/tickets.module';
 import {ConfigModule} from "@nestjs/config";
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -10,6 +11,7 @@ import {ConfigModule} from "@nestjs/config";
             isGlobal: true,
         }),
         TicketsModule,
+        AuthModule,
     ],
     controllers: [],
     providers: [PrismaService],
